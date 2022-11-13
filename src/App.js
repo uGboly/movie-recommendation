@@ -9,6 +9,8 @@ import {
 
 import TopBar from './components/topBar/TopBar';
 import LoginRegister from './components/LoginRegister/LoginRegister';
+import MoiveRating from './components/movieRating/MovieRating';
+import MoiveRecommendation from './components/movieRecommendation/MovieRecommendation';
 
 class App extends React.Component {
   constructor(props) {
@@ -38,7 +40,23 @@ class App extends React.Component {
           <Paper className="main-grid-item">
             <Switch>
               <Route exact path="/" render={ props => <LoginRegister {...props} changeContext={this.changeContext}/>}/>
+              {
+                this.state.loggedUser ? (
+                <Route path="/ratings"
+                  render={ props => <MoiveRating {...props} /> }
+                />
+                ) :
+                <Redirect path="/ratings" to="/" />
+              }
 
+              {
+                this.state.loggedUser ? (
+                <Route path="/recommendations"
+                  render={ props => <MoiveRecommendation {...props} /> }
+                />
+                ) :
+                <Redirect path="/recommendations" to="/" />
+              }              
             </Switch>
           </Paper>
         </Grid>

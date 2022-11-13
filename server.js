@@ -17,7 +17,7 @@ const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/movie');
 mongoose.Promise = require('bluebird');
 var User = require('./schema/user.js');
-
+var Movie = require('./schema/movie.js');
 
 app.post('/admin/login', upload.any(), (req, res) => {
     let { login_name, password} = req.body;
@@ -75,6 +75,54 @@ app.post('/admin/logout', upload.any(), (req, res) => {
         req.session.loginUser = '';
         res.status(200).send('The user logged out successfully!');
     }
+});
+
+app.get('/movies', async (req, res) => {
+    let movies = await Movie.aggregate().sample(10);
+    console.log(movies);
+    res.status(200).send(JSON.stringify(movies));
+});
+
+app.post('/rating', upload.any(), async (req, res) => {
+    if (!req.session.loginUser) {
+        res.status(401).send('No user is not currently logged in.');
+        return;
+    }
+
+    let movie = await Movie.findById(req.body.movie_id);
+    let user = await User.findById(req.session.loginUser);
+
+    for (let genre of movie.genres) {
+        if (user.prefered_genres.indexOf(genre) === -1) {
+            user.prefered_genres.push(genre);
+        }
+    }
+
+    await user.save();
+    res.status(200).send(JSON.stringify(movie));
+});
+
+app.get('/recommendation', async (req, res) => {
+    if (!req.session.loginUser) {
+        res.status(401).send('No user is not currently logged in.');
+        return;
+    }
+
+    let {prefered_genres} = await User.findById(req.session.loginUser);
+
+    if (prefered_genres.length === 0) {
+        let movies = await Movie.aggregate().sample(10);
+        console.log(movies);
+        res.status(200).send(JSON.stringify(movies));
+        return;
+    }
+
+    let movies = await Movie.aggregate().sample(5 * prefered_genres.length);
+
+    movies = movies.filter(m => m.genres.some(g => prefered_genres.indexOf(g) !== -1));
+    res.status(200).send(JSON.stringify(movies));
+    return;
+
 });
 
 app.listen(port, () => {

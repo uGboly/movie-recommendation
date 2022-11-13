@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-  AppBar, Toolbar, Typography, Button
+  AppBar, Toolbar, Typography, Button, Link
 } from '@mui/material';
 import './TopBar.css';
+import {Link as RouterLink}from 'react-router-dom';
 import axios from 'axios';
 
 /**
@@ -28,13 +29,17 @@ class TopBar extends React.Component {
   render() {
     return (
       <AppBar className="topbar-appBar" position="absolute">
-        <Toolbar>
+        <Toolbar justifyContent="space-around">
           <Typography variant="h5" color="inherit">
-            {this.props.loggedUser ? `hi ${this.props.loggedUser}` : '登录以使用电影推荐系统'}
+            {this.props.loggedUser ? '' : '登录以使用电影推荐系统'}
           </Typography>
+
+          <Link sx={{mx:3}} component={RouterLink} color="inherit" underline='none' to={'/ratings'}>电影评分</Link>
+          <Link sx={{mx:3}} component={RouterLink} color="inherit" underline='none' to={'/recommendations'}>电影推荐</Link>
+
           {
             this.props.loggedUser ? 
-            <Button className='right' component="button" variant="contained" color="error" onClick={this.handleClick}>注销</Button> : 
+            <Button component="button" variant="contained" color="error" onClick={this.handleClick}>注销</Button> : 
             ''
           }
         </Toolbar>

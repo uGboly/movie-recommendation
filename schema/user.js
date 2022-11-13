@@ -3,7 +3,8 @@ var mongoose = require('mongoose');
 // create a schema
 var userSchema = new mongoose.Schema({
     login_name: String,
-    password: String
+    password: String,
+    prefered_genres: [String]
 });
 
 // the schema is useless so far
